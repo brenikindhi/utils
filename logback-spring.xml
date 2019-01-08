@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<springProperty name="LOG_HOME" source="logPath" />
+	<springProperty name="LOG_LEVEL" source="logLevel" />
+	<springProperty name="ATOMIKOS_LOG_LEVEL" source="atomikos.log.level" />
+
+	<timestamp key="myTimestamp" timeReference="contextBirth"
+		datePattern="yyyy-MM-dd'_'HH-mm" />
+
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				[%level] [%t] %d{yyyy-MM-dd HH:mm:ss.SSS} %c - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+
+	<appender name="TIME_BASED_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_HOME}/rtpnr2.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_HOME}/rtpnr2.%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>60</maxHistory>
+		</rollingPolicy>
+
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>[%level] [%t] %d{yyyy-MM-dd HH:mm:ss.SSS} %c - %msg%n</Pattern>
+		</encoder>
+		<!-- <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/archived/rtpnr2-%d{yyyy-MM}.%i.log.gz
+			</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>5</maxIndex>
+		</rollingPolicy> -->
+
+	</appender>
+	
+	<appender name="ATOMIKOS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_HOME}/transaction-logs/tm.out</file>
+		<!-- <append>true</append> --> 
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_HOME}/transaction-logs/tm.%d{yyyy-MM-dd}.out</fileNamePattern>
+			<maxHistory>60</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<Pattern>[%level] [%t] %d{yyyy-MM-dd HH:mm:ss.SSS} %c - %msg%n</Pattern>
+		</encoder>
+	</appender>
+
+	<!-- NOTE: logback does not support FATAL, only ERROR, WARN, INFO, DEBUG 
+		and TRACE -->
+	<logger name="com.atomikos" level="${ATOMIKOS_LOG_LEVEL}">
+		<appender-ref ref="ATOMIKOS" />
+	</logger>
+
+	<logger name="com.epc.test" level="${LOG_LEVEL}">
+		<appender-ref ref="TIME_BASED_FILE" />
+		 <!-- <appender-ref ref="STDOUT" />   --> 
+	</logger>
+</configuration>
